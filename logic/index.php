@@ -219,7 +219,8 @@ class logic
                     ]
                 ];
                 $encodedKeyboard = json_encode($keyboard);
-                $send->editMessageText($func->quotes(), $encodedKeyboard);
+                $send->deleteKeyboard();
+                $send->keyboard($func->quotes(), $encodedKeyboard);
                 break;
             case '/compatibility':
                 $keyboard = [
@@ -235,6 +236,7 @@ class logic
             case '/compatibility_count':
                 $send->message("Совместимость того, о чём ты думаешь - ".$func->random(1,100)."%");
                 break;
+            /*
             case '/history': 
                 $keyboard = [
                     'inline_keyboard' => [
@@ -601,6 +603,7 @@ class logic
                 $encodedKeyboard = json_encode($keyboard);
                 $send->editMessageText("История выдумана, все совпадения случайны, надеюсь вам всё понравится!!!",$encodedKeyboard);
                 break;
+                */
             default:
                 $send->message("What???");
                 break;

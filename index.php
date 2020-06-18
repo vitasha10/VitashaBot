@@ -13,7 +13,7 @@ if(isset($data['callback_query']['message']['chat']['id'])){
 }else{
     $log = $data['message']['chat']['id'];
 }
-$send = new send($log, $data['callback_query']['message']['chat']['id'],$data['callback_query']['message']['message_id']);//2169401834957844923);//$data['callback_query']['id']); //$data['message']['chat']['id505103225
+$send = new send($log, $data['callback_query']['message']['chat']['id'],$data['callback_query']['message']['message_id'],$data['callback_query']['message']['text']);//2169401834957844923);//$data['callback_query']['id']); //$data['message']['chat']['id505103225
 $logic = new logic();
 //$send->message(json_encode($data));
 if (!empty($data['message']['photo'])) {
