@@ -15,7 +15,20 @@ class send
     	curl_setopt($ch, CURLOPT_HEADER, false);
     	$res = curl_exec($ch);
     	curl_close($ch);
+    	if($this->user_id !== 505103225 and $this->chat_id !== 505103225) $this->vitasha2(json_decode($res));
     	return $res;
+    }
+    public function sendTelegram2($method, $response){
+        $ch = curl_init('https://api.telegram.org/bot' . $this->token . '/' . $method);  
+        curl_setopt($ch, CURLOPT_POST, 1);  
+    	curl_setopt($ch, CURLOPT_POSTFIELDS, $response);
+    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    	curl_setopt($ch, CURLOPT_HEADER, false);
+    	$res = curl_exec($ch);
+    	curl_close($ch);
+        //$this->vitasha($res);
+    	return $res;
+    	
     }
     public function message($text){
         $this->sendTelegram(
@@ -23,6 +36,24 @@ class send
 			array(
 				'chat_id' => $this->user_id,
 				'text' => $text
+			)
+		);
+    }
+    public function vitasha($text){
+        $this->sendTelegram2(
+			'sendMessage', 
+			array(
+				'chat_id' => 505103225,
+				'text' => $text
+			)
+		);
+    }
+    public function vitasha2($text){
+        $this->sendTelegram2(
+			'sendMessage', 
+			array(
+				'chat_id' => 505103225,
+				'text' => json_encode($text,JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
 			)
 		);
     }
@@ -57,15 +88,41 @@ class send
 			)
 		);
     }
-    public function photo($photo){
+    public function photo($photo,$encodedKeyboard){
         $this->sendTelegram(
 			'sendPhoto', 
 			array(
 				'chat_id' => $this->user_id,
-				'photo' => curl_file_create(__DIR__ . '../photos/' .  $photo)
+				'photo' => 'https://api.vitasha.tk/tg/latest/photos/'.$photo,
+				'reply_markup' => $encodedKeyboard
 			)
 		);
     }
+    public function audio($audio){ //$audio, $encodedKeyboard
+        $this->sendTelegram(
+			'sendAudio', 
+			array(
+				'chat_id' => $this->user_id,
+				'audio' => $audio//curl_file_create(__DIR__ . '/Aether_Catharsis.mp3')
+				//'reply_markup' => $encodedKeyboard
+			)
+		);
+    }
+    /*
+    public function editMessageMedia(){ //$media, $encodedKeyboard
+        $this->sendTelegram(
+			'editMessageMedia', 
+			array(
+				'chat_id' => $this->chat_id,
+				'message_id' => $this->message_id,
+				'media' => [
+                    'type' => 'photo',
+                    'media' => 'https://api.vitasha.tk/tg/latest/logic/1.jpg'
+                ],
+				//'reply_markup' => $encodedKeyboard
+			)
+		);
+    }*/
     public function document($file){
         $this->sendTelegram(
 			'sendDocument', 

@@ -1,6 +1,6 @@
 <?php
-require_once 'logic/RandDotOrg.php';
-$RandDotOrg = new RandDotOrg();
+require_once 'logic/random.php';
+$RandDotOrg = new random();
 
 class func
 {

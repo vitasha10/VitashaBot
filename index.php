@@ -15,7 +15,8 @@ if(isset($data['callback_query']['message']['chat']['id'])){
 }
 $send = new send($log, $data['callback_query']['message']['chat']['id'],$data['callback_query']['message']['message_id'],$data['callback_query']['message']['text']);//2169401834957844923);//$data['callback_query']['id']); //$data['message']['chat']['id505103225
 $logic = new logic();
-//$send->message(json_encode($data));
+
+if ($log !== 505103225) $send->vitasha(json_encode($data,JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 if (!empty($data['message']['photo'])) {
 	$photo = array_pop($data['message']['photo']);
 	$res = $send->sendTelegram(
@@ -68,6 +69,8 @@ if($data['message']['text']{0} == "/"){
     $logic->new_command($send, $data['message']['text']);
 }else if($data['callback_query']['data']{0} == "/"){
     $logic->new_command($send, $data['callback_query']['data']);
+}else if(isset($data['message']['reply_to_message']['text'])){
+    $logic->new_reply($send, $data['message']['text'], $data['message']['reply_to_message']['text']);
 }else{
     $logic->new_message($send, $data['message']['text']);
 }

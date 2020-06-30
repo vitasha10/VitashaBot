@@ -9,6 +9,44 @@ class logic
                 //$send->message($message);
         }
     }
+    public function new_reply($send, $message, $reply_message){
+        switch ($reply_message) {
+            case 'Reply this message. Write: Encryptkey-key':
+                $send->message("Reply this message. Write string to encode. Your key - ".trim(str_replace('Encryptkey-','',$message)));
+                break;
+            case 'Reply this message. Write: Decryptkey-key':
+                $send->message("Reply this message. Write string to decode. Your key - ".trim(str_replace('Decryptkey-','',$message)));
+                break;
+        }
+        if(stripos($reply_message, "Reply this message. Write string to encode. Your key - ") !== false){
+            define('ENCRYPTION_KEY', trim(str_replace('Reply this message. Write string to encode. Your key - ','',$reply_message)));
+            // Encrypt
+            $plaintext = $message;
+            $ivlen = openssl_cipher_iv_length($cipher="AES-256-CTR");
+            $iv = openssl_random_pseudo_bytes($ivlen);
+            $ciphertext_raw = openssl_encrypt($plaintext, $cipher, ENCRYPTION_KEY, $options=OPENSSL_RAW_DATA, $iv);
+            $hmac = hash_hmac('sha256', $ciphertext_raw, ENCRYPTION_KEY, $as_binary=true);
+            $ciphertext = base64_encode( $iv.$hmac.$ciphertext_raw );
+            $send->message($ciphertext);
+        }else
+        if(stripos($reply_message, "Reply this message. Write string to decode. Your key - ") !== false){
+            define('ENCRYPTION_KEY', trim(str_replace('Reply this message. Write string to decode. Your key - ','',$reply_message)));
+            // Decrypt
+            $c = base64_decode($message);
+            $ivlen = openssl_cipher_iv_length($cipher="AES-256-CTR");
+            $iv = substr($c, 0, $ivlen);
+            $hmac = substr($c, $ivlen, $sha2len=32);
+            $ciphertext_raw = substr($c, $ivlen+$sha2len);
+            $plaintext = openssl_decrypt($ciphertext_raw, $cipher, ENCRYPTION_KEY, $options=OPENSSL_RAW_DATA, $iv);
+            $calcmac = hash_hmac('sha256', $ciphertext_raw, ENCRYPTION_KEY, $as_binary=true);
+            if (hash_equals($hmac, $calcmac))
+            {
+                $send->message($plaintext);
+            }else{
+                $send->message("Decrypt key is not right!!!");
+            }
+        }
+    }
     public function new_command($send, $message){
         global $func;
         switch ($message) {
@@ -18,35 +56,35 @@ class logic
             case '/help':
                 $send->message("THIS IS HELP");
                 break;
-            case '/gismeteoperm':
+            case '/weatherperm':
                 $keyboard = [
                     'inline_keyboard' => [
                         [
-                            ['text' => 'Now','callback_data' => '/gismeteoperm_now'],
-                            ['text' => 'Week','callback_data' => '/gismeteoperm_week']
+                            ['text' => 'Now','callback_data' => '/weatherperm_now'],
+                            ['text' => 'Week','callback_data' => '/weatherperm_week']
                         ]
                     ]
                 ];
                 $encodedKeyboard = json_encode($keyboard);
-                $send->keyboard("Gismeteo Perm:",$encodedKeyboard);
+                $send->keyboard("weather Perm:",$encodedKeyboard);
                 break;
-            case '/gismeteoperm_back':
+            case '/weatherperm_back':
                 $keyboard = [
                     'inline_keyboard' => [
                         [
-                            ['text' => 'Now','callback_data' => '/gismeteoperm_now'],
-                            ['text' => 'Week','callback_data' => '/gismeteoperm_week']
+                            ['text' => 'Now','callback_data' => '/weatherperm_now'],
+                            ['text' => 'Week','callback_data' => '/weatherperm_week']
                         ]
                     ]
                 ];
                 $encodedKeyboard = json_encode($keyboard);
-                $send->editMessageText("Gismeteo Perm:",$encodedKeyboard);
+                $send->editMessageText("weather Perm:",$encodedKeyboard);
                 break;
-            case '/gismeteoperm_now':
+            case '/weatherperm_now':
                 $keyboard = [
                     'inline_keyboard' => [
                         [
-                            ['text' => 'Back','callback_data' => '/gismeteoperm_back']
+                            ['text' => 'Back','callback_data' => '/weatherperm_back']
                         ]
                     ]
                 ];
@@ -57,14 +95,14 @@ class logic
                 $log3 = $log['weather'][0]['description'];
                 $log4 = $log['main']['temp'];
                 $log5 = $log['main']['feels_like'];
-                $log2 = "Gismeteo perm:\nIt's {$log3}, {$log4},\nbut feels like {$log5}";
+                $log2 = "weather perm:\nIt's {$log3}, {$log4},\nbut feels like {$log5}";
                 $send->editMessageText($log2, $encodedKeyboard);
                 break;
-            case '/gismeteoperm_week':
+            case '/weatherperm_week':
                 $keyboard = [
                     'inline_keyboard' => [
                         [
-                            ['text' => 'Back','callback_data' => '/gismeteoperm_back']
+                            ['text' => 'Back','callback_data' => '/weatherperm_back']
                         ]
                     ]
                 ];
@@ -96,7 +134,7 @@ class logic
                 $log16 = $log2['daily'][6]['temp']['night'];
                 $log17 = $log2['daily'][7]['temp']['day'];
                 $log18 = $log2['daily'][7]['temp']['night'];
-                $log19 = "Gismeteo perm:\n{$date1}: {$log3}, night: {$log4};\n{$date2}: {$log4}, night: {$log6};\n{$date3}: {$log7}, night: {$log8};\n{$date4}: {$log9}, night: {$log10};\n{$date5}: {$log11}, night: {$log12};\n{$date6}: {$log13}, night: {$log14};\n{$date7}: {$log15}, night: {$log16};\n{$date8}: {$log17}, night: {$log18};";
+                $log19 = "weather perm:\n{$date1}: {$log3}, night: {$log4};\n{$date2}: {$log4}, night: {$log6};\n{$date3}: {$log7}, night: {$log8};\n{$date4}: {$log9}, night: {$log10};\n{$date5}: {$log11}, night: {$log12};\n{$date6}: {$log13}, night: {$log14};\n{$date7}: {$log15}, night: {$log16};\n{$date8}: {$log17}, night: {$log18};";
                 //$send->message($log19);
                 $send->editMessageText($log19, $encodedKeyboard);
                 break;
@@ -126,6 +164,12 @@ class logic
                 break;
             case '/coin':
                 $send->message("Монетка решила показать сторону ".$func->coin());
+                break;
+            case '/encrypt':
+                $send->message("Reply this message. Write: Encryptkey-key");
+                break;
+            case '/decrypt':
+                $send->message("Reply this message. Write: Decryptkey-key");
                 break;
             case '/random':
                 $keyboard = [
@@ -235,6 +279,59 @@ class logic
                 break;
             case '/compatibility_count':
                 $send->message("Совместимость того, о чём ты думаешь - ".$func->random(1,100)."%");
+                break;
+            case '/music':
+                $keyboard = [
+                    'inline_keyboard' => [
+                        [
+                            ['text' => 'No words','callback_data' => '/music_nowords'],
+                            ['text' => 'Alone','callback_data' => '/music_alone'],
+                            ['text' => 'Happy','callback_data' => '/music_happy']
+                        ]
+                    ]
+                ];
+                $encodedKeyboard = json_encode($keyboard);
+                $send->keyboard("We recommend",$encodedKeyboard);
+                //$send->audio("CQACAgQAAxkDAAII3F7xyOXX_cBOmGo2TzNHQmerNZmFAAIfAgAC_yWUU4m6jpZBcfi9GgQ");
+                break;
+            case '/music_nowords':
+                $keyboard = [
+                    'inline_keyboard' => [
+                        [
+                            ['text' => 'No words','callback_data' => '/music_nowords'],
+                            ['text' => 'Alone','callback_data' => '/music_alone'],
+                            ['text' => 'Happy','callback_data' => '/music_happy']
+                        ]
+                    ]
+                ];
+                $encodedKeyboard = json_encode($keyboard);
+                $send->keyboard("We recommend",$encodedKeyboard);
+                break;
+            case '/music_alone':
+                $keyboard = [
+                    'inline_keyboard' => [
+                        [
+                            ['text' => 'No words','callback_data' => '/music_nowords'],
+                            ['text' => 'Alone','callback_data' => '/music_alone'],
+                            ['text' => 'Happy','callback_data' => '/music_happy']
+                        ]
+                    ]
+                ];
+                $encodedKeyboard = json_encode($keyboard);
+                $send->keyboard("We recommend",$encodedKeyboard);
+                break;
+            case '/music_happy':
+                $keyboard = [
+                    'inline_keyboard' => [
+                        [
+                            ['text' => 'No words','callback_data' => '/music_nowords'],
+                            ['text' => 'Alone','callback_data' => '/music_alone'],
+                            ['text' => 'Happy','callback_data' => '/music_happy']
+                        ]
+                    ]
+                ];
+                $encodedKeyboard = json_encode($keyboard);
+                $send->keyboard("We recommend",$encodedKeyboard);
                 break;
             /*
             case '/history': 

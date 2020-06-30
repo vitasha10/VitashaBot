@@ -60,7 +60,7 @@ class RandDotOrg
 	 * @param int Random.org API quota limit
 	 * @return void
 	 */
-	public function __construct( $use_ssl = true, $user_agent = '', $limit = 1000 ) {
+	public function __construct( $use_ssl = true, $user_agent = '', $limit = 10000 ) {
 		$this->uses_curl = function_exists( 'curl_init' );
 		if ( $this->uses_curl ) {
 			$this->curl_ch = curl_init();

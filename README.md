@@ -12,7 +12,6 @@ Functions:
 /quotes - Bot say random qoute for you, Bot choose it with random.org from 1000+ quotes.
 /random - Bot generate random number.
 /compatibility - Bot say u % of 2 objects.
-/history - Bot tell u some history.
 
 When you send photo or file Bot save it on your server in folders files and photos.
 </pre>
